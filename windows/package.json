@@ -1,0 +1,64 @@
+{
+  "name": "gimis-charms",
+  "productName": "Gimis Charms",
+  "version": "1.2.1",
+  "description": "Gimis Charms - GIMIS pamoja na extension ya GPSA (Windows)",
+  "author": "GPSA",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64 --ia32 --arm64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "tz.gpsa.browser.windows",
+    "productName": "Gimis Charms",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "ui/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../extensions/gpsa-extension",
+        "to": "extension"
+      }
+    ],
+    "artifactName": "Gimis-Charms-Setup-${version}-${arch}.${ext}",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "executableName": "Gimis Charms"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Gimis Charms",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "uninstallDisplayName": "Gimis Charms",
+      "buildUniversalInstaller": false
+    },
+    "copyright": "GPSA"
+  }
+}
