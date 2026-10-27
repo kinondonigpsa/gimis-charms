@@ -1,0 +1,8 @@
+.gradle/
+build/
+app/build/
+app/src/main/assets/extensions/
+local.properties
+*.apk
+windows/node_modules/
+windows/dist/
