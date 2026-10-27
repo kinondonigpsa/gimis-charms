@@ -1,0 +1,125 @@
+name: Build Gimis Charms (Android simu, Android tablet, Windows)
+# Inajengwa kwa mkono tu (Actions > Run workflow). Zamani kila "Add files via upload" ilianzisha build mpya
+# na kujaza hifadhi ya artifacts ya GitHub (quota), na ndipo upload ilipoanza kushindwa.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  # ------------------------------------------------------------------ ANDROID (simu + tablet)
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - name: Accept Android licenses (SDK is already installed on the runner)
+        run: |
+          mkdir -p "$ANDROID_HOME/licenses"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: current }
+      - name: Prepare extensions (Chrome -> Firefox format)
+        run: python3 tools/prepare_extensions.py
+
+      - name: APK za universal (64-bit + 32-bit) - simu na tablet
+        run: |
+          mkdir -p out/phones out/tablets
+          gradle --no-daemon :app:assemblePhoneRelease :app:assembleTabletRelease
+          cp app/build/outputs/apk/phone/release/app-phone-release.apk   out/phones/Gimis-Charms-Simu-universal.apk
+          cp app/build/outputs/apk/tablet/release/app-tablet-release.apk out/tablets/Gimis-Charms-Tablet-universal.apk
+
+      - name: APK ndogo za 64-bit (arm64)
+        run: |
+          gradle --no-daemon :app:assemblePhoneRelease :app:assembleTabletRelease -Pabis=arm64-v8a
+          cp app/build/outputs/apk/phone/release/app-phone-release.apk   out/phones/Gimis-Charms-Simu-arm64-only.apk
+          cp app/build/outputs/apk/tablet/release/app-tablet-release.apk out/tablets/Gimis-Charms-Tablet-arm64-only.apk
+
+      - name: APK ndogo za 32-bit (arm)
+        run: |
+          gradle --no-daemon :app:assemblePhoneRelease :app:assembleTabletRelease -Pabis=armeabi-v7a
+          cp app/build/outputs/apk/phone/release/app-phone-release.apk   out/phones/Gimis-Charms-Simu-arm32-only.apk
+          cp app/build/outputs/apk/tablet/release/app-tablet-release.apk out/tablets/Gimis-Charms-Tablet-arm32-only.apk
+
+      - name: Maelekezo ya kuinstall (yanaingia kwenye kila zip)
+        run: |
+          for kind in phones tablets; do
+            if [ "$kind" = "phones" ]; then who="SIMU (Android phones)"; pre="Simu"; else who="TABLET (Android tablets)"; pre="Tablet"; fi
+            {
+              echo "Gimis Charms - $who"
+              echo
+              echo "Jaribu faili kwa mpangilio huu:"
+              echo "1. Gimis-Charms-$pre-universal.apk   -> inafaa kila kifaa (64-bit na 32-bit). Anza na hii."
+              echo "2. Gimis-Charms-$pre-arm64-only.apk  -> ndogo zaidi, kwa vifaa vya 64-bit (vingi vya kuanzia 2017)."
+              echo "3. Gimis-Charms-$pre-arm32-only.apk  -> ndogo zaidi, kwa vifaa vya zamani vya 32-bit."
+              echo
+              echo "Hatua: tuma APK kwenye kifaa > ifungue > ruhusu 'Install unknown apps' > Install > Open."
+              echo "Gimis Charms inajiwekea icon kwenye home screen yenyewe (ikiuliza 'Add to home screen' bonyeza Add)."
+              echo "Mara ya kwanza tu: futa (uninstall) Gimis Charms ya zamani kabla ya kuinstall hii (saini ni tofauti)."
+              echo "Baada ya hapo, matoleo yajayo yanawekwa juu ya app iliyopo moja kwa moja."
+            } > "out/$kind/SOMA-HAPA.txt"
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          retention-days: 2
+          name: Gimis-Charms-Android-SIMU
+          path: out/phones/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          retention-days: 2
+          name: Gimis-Charms-Android-TABLET
+          path: out/tablets/*
+          if-no-files-found: error
+
+  # ------------------------------------------------------------------ WINDOWS (.exe)
+  windows:
+    runs-on: windows-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Install dependencies
+        run: npm install
+      # Kila aina inajengwa kivyake; ikishindwa moja, nyingine bado zinatoka.
+      - name: Installer ya 64-bit (x64) - kompyuta nyingi
+        continue-on-error: true
+        run: npx electron-builder --win --x64 --publish never
+      - name: Installer ya 32-bit (ia32)
+        continue-on-error: true
+        run: npx electron-builder --win --ia32 --publish never
+      - name: Installer ya ARM64 (Windows on ARM)
+        continue-on-error: true
+        run: npx electron-builder --win --arm64 --publish never
+      - name: Orodha ya installer zilizotoka
+        shell: bash
+        run: |
+          ls -la dist || true
+          cat > dist/SOMA-HAPA.txt <<'TXT'
+          Gimis Charms - Windows (Windows 10 na 11)
+
+          Gimis-Charms-Setup-<toleo>-x64.exe    -> kompyuta nyingi (64-bit). Anza na hii.
+          Gimis-Charms-Setup-<toleo>-ia32.exe   -> kompyuta za 32-bit.
+          Gimis-Charms-Setup-<toleo>-arm64.exe  -> Windows on ARM.
+
+          Hatua: bonyeza .exe mara mbili. Inajiweka yenyewe (hakuna cha kuchagua, hakuna cha kupakua, huhitaji admin),
+          inatengeneza icon ya Gimis Charms kwenye Desktop na Start Menu, kisha inafungua app.
+          Windows ikionya (SmartScreen): More info > Run anyway.
+          Installer haijatiwa saini ya kampuni, ndiyo sababu ya onyo hilo.
+          TXT
+          count=$(ls dist/*.exe 2>/dev/null | wc -l)
+          echo "Installer zilizotoka: $count"
+          [ "$count" -ge 1 ]
+      - uses: actions/upload-artifact@v4
+        with:
+          retention-days: 2
+          name: Gimis-Charms-Windows
+          path: |
+            windows/dist/*.exe
+            windows/dist/SOMA-HAPA.txt
+          if-no-files-found: error
