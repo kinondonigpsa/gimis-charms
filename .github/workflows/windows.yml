@@ -1,0 +1,10 @@
+# Windows sasa inajengwa ndani ya build.yml (job "windows"), ili Android na Windows zionekane kwenye run moja.
+# Faili hili limeachwa kama la mkono tu; unaweza kulifuta.
+name: (Zamani) Windows - sasa ipo kwenye build.yml
+on:
+  workflow_dispatch: {}
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Tumia workflow 'Build Gimis Charms (Android simu, Android tablet, Windows)' - ina Windows pia."
