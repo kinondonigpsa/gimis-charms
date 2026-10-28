@@ -1,0 +1,11 @@
+/* Gimis Charms - workspaces (Fuel LPO, Vehicle / Token, Depot Bin Card).
+   The three old floating launchers are hidden: the workspaces are opened from the Gimis Charms dashboard. */
+#gfs-toggle, #gimis-plus-toggle, #gbe-launcher { display: none !important; }
+
+/* The workspace window sits in its own layer above the dashboard. */
+#gpsa-ws-layer { position: fixed; inset: 0; z-index: 2147483640; display: none; align-items: center; justify-content: center;
+  padding: 2vh 2vw; background: rgba(15, 23, 42, .55); }
+#gpsa-ws-layer.on { display: flex; }
+#gpsa-ws-layer > #gfs-panel, #gpsa-ws-layer > #gimis-plus-panel, #gpsa-ws-layer > #gbe-panel {
+  position: static !important; right: auto !important; bottom: auto !important; margin: 0 !important; max-height: 94vh !important; }
+@media (max-width: 650px) { #gpsa-ws-layer { padding: 0; } #gpsa-ws-layer > div { max-width: 100vw !important; width: 100vw !important; max-height: 100vh !important; border-radius: 0 !important; } }

@@ -1,0 +1,221 @@
+#gimis-plus-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  background: #f5820d;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: bold;
+  font-family: sans-serif;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#gimis-plus-panel {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  width: 480px;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  z-index: 999999;
+  display: none;
+  font-family: sans-serif;
+  font-size: 13px;
+  transition: width 0.15s ease, max-height 0.15s ease;
+}
+
+#gimis-plus-panel.gimis-plus-open {
+  display: block;
+}
+
+/* Expanded state (toggled by the header "expand" button) so users can
+   see more rows/columns of the results table at once. */
+#gimis-plus-panel.gimis-plus-expanded {
+  width: 900px;
+  max-width: 95vw;
+  max-height: 90vh;
+}
+
+.gimis-plus-header {
+  background: #f5820d;
+  color: white;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px 10px 0 0;
+}
+
+.gimis-plus-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.gimis-plus-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.gimis-plus-title-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.gimis-plus-title {
+  font-weight: bold;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Powered By e-LAPS" credit — shown in a translucent/transparent tone
+   so it reads as a subtle acknowledgement, not competing with the title. */
+.gimis-plus-powered {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 1px;
+}
+
+.gimis-plus-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.gimis-plus-header-actions button {
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  color: white;
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.gimis-plus-header-actions button:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.gimis-plus-body {
+  padding: 12px 14px;
+}
+
+.gimis-plus-body label {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: #333;
+}
+
+.gimis-plus-body input[type="text"],
+.gimis-plus-body input[type="date"] {
+  width: 100%;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.gimis-plus-daterow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.gimis-plus-daterow label {
+  margin: 0;
+  white-space: nowrap;
+}
+.gimis-plus-daterow input {
+  flex: 1;
+}
+
+.gimis-plus-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.gimis-plus-actions button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#gimis-plus-search {
+  background: #f5820d;
+  color: white;
+}
+
+#gimis-plus-refresh {
+  background: #eee;
+  color: #333;
+}
+
+#gimis-plus-status {
+  margin-top: 8px;
+  color: #555;
+  min-height: 16px;
+}
+
+.gimis-plus-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.gimis-plus-table th,
+.gimis-plus-table td {
+  border: 1px solid #ddd;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.gimis-plus-table th {
+  background: #f5f5f5;
+}
+
+.gimis-plus-hint {
+  font-size: 11px;
+  color: #888;
+  margin: 4px 0 0 0;
+}
+
+.gimis-plus-empty {
+  color: #a00;
+}
+
+.gimis-plus-count {
+  font-weight: 600;
+}
