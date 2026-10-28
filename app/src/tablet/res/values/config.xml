@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tablet: vitufe na maandishi makubwa zaidi kwa skrini kubwa na kugusa kwa kidole -->
+    <dimen name="bar_btn">60dp</dimen>
+    <dimen name="bar_btn_wide">72dp</dimen>
+    <dimen name="bar_text">18sp</dimen>
+    <dimen name="bar_icon_text">22sp</dimen>
+    <string name="device_kind" translatable="false">tablet</string>
+</resources>
