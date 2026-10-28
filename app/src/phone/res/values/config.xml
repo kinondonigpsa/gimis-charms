@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Simu: vitufe vidogo, upau mwembamba -->
-    <dimen name="bar_btn">44dp</dimen>
-    <dimen name="bar_btn_wide">48dp</dimen>
-    <dimen name="bar_text">14sp</dimen>
-    <dimen name="bar_icon_text">16sp</dimen>
-</resources>
