@@ -1,5 +1,6 @@
 .gradle/
 build/
+!windows/build/
 app/build/
 app/src/main/assets/extensions/
 local.properties
