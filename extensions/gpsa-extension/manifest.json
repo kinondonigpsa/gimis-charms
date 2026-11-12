@@ -1,7 +1,7 @@
 {
  "manifest_version": 3,
  "name": "GPSA GIMIS Token Helper",
- "version": "2.25.0",
+ "version": "2.26.0",
  "description": "Hifadhi token + chassis kisha ziissue kwa wingi ndani ya GIMIS. Cloud backup (Supabase) + local backup + elapsAI: msaidizi wa AI anayesoma data ya GIMIS na kutengeneza Excel, Word, PDF, chati na picha.",
  "web_accessible_resources": [
   {
