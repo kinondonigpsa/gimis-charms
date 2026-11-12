@@ -195,6 +195,10 @@ jobs:
         env:
           TAG: ${{ needs.prepare.outputs.tag }}
         run: gh release edit "$TAG" --repo "$RELEASE_REPO" --draft=false --latest
+      - name: Orodha ya faili zilizopo kwenye release (uchunguzi)
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release view "$TAG" --repo "$RELEASE_REPO" --json assets -q '.assets[].name'
       - name: Andika toleo jipya kwenye Supabase
         env:
           TAG: ${{ needs.prepare.outputs.tag }}
