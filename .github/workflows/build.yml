@@ -15,10 +15,11 @@ on:
 permissions:
   contents: write
 
-# Push mpya ikiingia wakati build ya zamani bado inaendelea, ya zamani inasimamishwa.
+# Push mpya ikiingia wakati build bado inaendelea, inasubiri (haiisimamishi ya zamani).
+# Hapo awali cancel-in-progress: true ilikuwa inakata job ya Windows kila ukipush tena.
 concurrency:
   group: gimis-release
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   # Mahali release zinapowekwa. Default = repo hii. Kama repo hii ni PRIVATE, weka repo nyingine ya umma
