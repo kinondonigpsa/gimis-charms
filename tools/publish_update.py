@@ -115,8 +115,11 @@ def publish(row_id, urls, sizes):
     for k in ('minBuild', 'force'):
         if k in old:
             data[k] = old[k]
-    if old.get('build', 0) and int(old['build']) >= BUILD:
-        sys.exit(f'{row_id}: build {BUILD} si mpya kuliko iliyopo ({old["build"]}). Hakuna kilichobadilishwa.')
+    # Build ya chini kuliko iliyopo: usirudishe nyuma (ruka, bila kushindisha job).
+    # Build SAWA (re-run): inaruhusiwa - inaandika upya data ile ile (idempotent).
+    if old.get('build', 0) and int(old['build']) > BUILD:
+        print(f'{row_id}: build {BUILD} ni ya zamani kuliko iliyopo ({old["build"]}). Imerukwa.')
+        return
     st, _, b = http('POST', f'{SB}/rest/v1/gpsa_release?on_conflict=id',
                     dict(H, prefer='resolution=merge-duplicates,return=minimal'), {'id': row_id, 'data': data})
     if st not in (200, 201, 204):
