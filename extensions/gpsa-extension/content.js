@@ -90,8 +90,8 @@
           <label><input type="checkbox" id="achk" style="width:auto"> Auto-check every 10 minutes</label></div>
         <div class="row"><button class="g" id="regen" disabled title="Asks GIMIS to renew the ticked tokens that have expired before they were issued">P.I.M.P (0)</button></div>
         <div class="row"><button id="up" title="Send everything to the cloud storage AND save a copy on this device (Excel + JSON)">&#11014; Upload</button>
-          <button class="r" id="clr" hidden style="display:none">Delete issued</button></div>
-        <div class="row"><button class="r" id="del" disabled hidden style="display:none">Delete selected (0)</button>
+          <button class="r" id="clr">Delete issued</button></div>
+        <div class="row"><button class="r" id="del" disabled>Delete selected (0)</button>
           <button class="r" id="clrAll" hidden style="display:none" title="Admin only: deletes EVERY token on this computer, in the cloud and (at their next sync) on all other computers">Delete ALL tokens (admin)</button>
           <button class="g" id="impx" title="Load token + chassis numbers from any Excel or CSV file into the boxes (or restore a file made by Upload)">Load Excel</button>
           <input type="file" id="impxf" accept=".xlsx,.xls,.csv,.json,application/json" hidden></div>
@@ -112,6 +112,7 @@
             <select id="cvs"><option value="">All statuses</option><option value="pending">pending</option><option value="issued">issued</option><option value="failed">failed</option></select>
             <button class="g" id="cvr">Refresh from cloud</button>
             <button id="cvp" disabled>Pull selected (0)</button>
+            <button class="r" id="cvd" disabled>Delete selected (0)</button>
             <button id="cvpp">Pull pending only</button>
             <button id="cva">Pull all</button>
           </div>
@@ -327,7 +328,6 @@
     render();
   });
   $('del').onclick = async () => {
-    if (!(await isOwnerNow())) { log('Only the owner of the system can delete data.', 'warn'); return; }
     if (!sel.size || !confirm(`Permanently delete the ${sel.size} selected token(s)? This cannot be undone.`)) return;
     const n = sel.size, q = await load(), gone = q.filter((i) => sel.has(kOf(i))).map((i) => i.token);
     await save(q.filter((i) => !sel.has(kOf(i)))); sel.clear(); logNew('Deleted: ' + n); render();
@@ -444,7 +444,6 @@
     } finally { $('add').disabled = false; }
   };
   $('clr').onclick = async () => {
-    if (!(await isOwnerNow())) { log('Only the owner of the system can delete data.', 'warn'); return; }
     if (!confirm('Delete all issued tokens from this list?')) return;
     logNew('');
     const q = await load(), gone = q.filter((i) => i.status === 'issued').map((i) => i.token);
@@ -951,12 +950,13 @@
     catch (e) { res({ ok: false, error: String(e) }); }
   });
 
-  // v2.22.0: deleting data is for the owner of the system only. The delete buttons stay hidden until the owner
-  // has signed in (Control > Owner console on this computer; the sign-in is checked against the Supabase owner account).
+  // v2.26.0: every signed-in user can delete tokens (Delete selected / Delete issued / Cloud records delete).
+  // Only "Delete ALL tokens (admin)" stays owner-only: its button is hidden until the owner has signed in
+  // (Control > Owner console) and the server function checks it again.
   const isOwnerNow = async () => { const r = await cloudMsg({ op: 'ownerStatus' }); return !!(r && r.ok && r.signedIn); };
   async function applyOwnerUi() {
     const on = await isOwnerNow();
-    ['clr', 'del', 'clrAll'].forEach((id) => { const b = $(id); if (b) { b.hidden = !on; b.style.display = on ? '' : 'none'; } });
+    ['clrAll'].forEach((id) => { const b = $(id); if (b) { b.hidden = !on; b.style.display = on ? '' : 'none'; } });
   }
   applyOwnerUi(); setInterval(applyOwnerUi, 15000);
   try { window.addEventListener('focus', applyOwnerUi); } catch (e) {}
@@ -1053,6 +1053,7 @@
     const missing = cloudItems.filter((i) => stateOf(i)[1] === 'st-new').length, newer = cloudItems.filter((i) => stateOf(i)[1] === 'st-cloud').length;
     $('cvn').textContent = `${cloudItems.length} in cloud · ${missing} not on this computer · ${newer} newer in cloud · showing ${cvShown.length}`;
     $('cvp').textContent = `Pull selected (${csel.size})`; $('cvp').disabled = !csel.size;
+    $('cvd').textContent = `Delete selected (${csel.size})`; $('cvd').disabled = !csel.size;
     $('cva').disabled = !(missing || newer);
   }
   async function pullTokens(tokens, force) {
@@ -1096,6 +1097,14 @@
     const overwrite = chosen.filter((i) => by[i.token] && (by[i.token].updatedAt || 0) > (i.updatedAt || 0)).length;
     if (overwrite && !confirm(`${overwrite} selected record(s) are newer on this computer than in the cloud. Replace them with the cloud copy?`)) return;
     await pullTokens(new Set(chosen.map((i) => i.token)), true); csel.clear(); renderCloudView();
+  };
+  // v2.26.0: delete the selected records from the cloud storage (and from this computer, so the next sync does not upload them again)
+  $('cvd').onclick = async () => {
+    const chosen = cloudItems.filter((i) => csel.has(i.token)); if (!chosen.length) return;
+    if (!confirm(`Permanently delete the ${chosen.length} selected record(s) from the cloud storage and from this computer? This cannot be undone.`)) return;
+    const gone = chosen.map((i) => i.token), set = new Set(gone), q = await load();
+    await save(q.filter((i) => !set.has(i.token))); csel.clear();
+    await cloudDeleteTokens(gone); await loadCloudView(); render();
   };
   $('cvpp').onclick = async () => { await pullTokens(new Set(cloudItems.filter((i) => i.status === 'pending').map((i) => i.token)), false); };
   $('cva').onclick = async () => { await pullTokens(new Set(cloudItems.map((i) => i.token)), false); };
